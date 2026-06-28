@@ -1,109 +1,146 @@
-import { randomUUID } from "crypto";
+import { Application as PrismaApplication, ApplicationStatus } from "@prisma/client";
 import { Request, Response } from "express";
+import prisma from "../prisma/client";
 import { Application, ApplicationInput } from "../types/Application";
 
-// Temporary data store for iteration 1. This resets whenever the server restarts.
-let applications: Application[] = [
-  {
-    id: randomUUID(),
-    userId: "demo-user",
-    company: "Acme Design Co.",
-    position: "Frontend Developer",
-    location: "Remote",
-    jobUrl: "https://example.com/jobs/frontend-developer",
-    status: "APPLIED",
-    dateApplied: new Date().toISOString(),
-    notes: "Demo application stored in memory.",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-];
+const DEFAULT_USER_ID = "demo-user";
 
 const hasRequiredFields = (body: ApplicationInput) => {
   return Boolean(body.company && body.position && body.status);
 };
 
-export const getApplications = (_req: Request, res: Response) => {
-  res.json(applications);
+const isValidStatus = (status: string) => {
+  return Object.values(ApplicationStatus).includes(status as ApplicationStatus);
 };
 
-export const createApplication = (req: Request, res: Response) => {
+const parseDateApplied = (dateApplied?: string) => {
+  if (!dateApplied) {
+    return null;
+  }
+
+  const date = new Date(dateApplied);
+
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const toApiApplication = (application: PrismaApplication): Application => {
+  return {
+    id: application.id,
+    userId: application.userId,
+    company: application.company,
+    position: application.position,
+    location: application.location || "",
+    jobUrl: application.jobUrl || "",
+    status: application.status,
+    dateApplied: application.dateApplied ? application.dateApplied.toISOString() : "",
+    notes: application.notes || "",
+    createdAt: application.createdAt.toISOString(),
+    updatedAt: application.updatedAt.toISOString()
+  };
+};
+
+const logDatabaseError = (action: string, error: unknown) => {
+  console.error(`Database error while trying to ${action}:`, error);
+};
+
+export const getApplications = async (_req: Request, res: Response) => {
+  try {
+    // This database read goes through Prisma, so applications persist in PostgreSQL after restart.
+    const applications = await prisma.application.findMany({
+      orderBy: {
+        createdAt: "desc"
+      }
+    });
+
+    res.json(applications.map(toApiApplication));
+  } catch (error) {
+    logDatabaseError("load applications", error);
+    res.status(500).json({ message: "Could not load applications" });
+  }
+};
+
+export const createApplication = async (req: Request, res: Response) => {
   const body: ApplicationInput = req.body;
   const { company, position, status } = body;
 
-  if (!hasRequiredFields(body)) {
+  if (!hasRequiredFields(body) || !status || !isValidStatus(status)) {
     return res.status(400).json({
       message: "company, position, and status are required"
     });
   }
 
-  const now = new Date().toISOString();
+  try {
+    // Prisma creates the row in PostgreSQL instead of a temporary in-memory array.
+    const newApplication = await prisma.application.create({
+      data: {
+        userId: body.userId || DEFAULT_USER_ID,
+        company: company || "",
+        position: position || "",
+        location: body.location || null,
+        jobUrl: body.jobUrl || null,
+        status,
+        dateApplied: parseDateApplied(body.dateApplied),
+        notes: body.notes || null
+      }
+    });
 
-  const newApplication: Application = {
-    id: randomUUID(),
-    userId: body.userId || "demo-user",
-    company: company || "",
-    position: position || "",
-    location: body.location || "",
-    jobUrl: body.jobUrl || "",
-    status: status || "SAVED",
-    dateApplied: body.dateApplied || now,
-    notes: body.notes || "",
-    createdAt: now,
-    updatedAt: now
-  };
-
-  applications.push(newApplication);
-
-  res.status(201).json(newApplication);
+    res.status(201).json(toApiApplication(newApplication));
+  } catch (error) {
+    logDatabaseError("create an application", error);
+    res.status(500).json({ message: "Could not create application" });
+  }
 };
 
-export const updateApplication = (req: Request, res: Response) => {
+export const updateApplication = async (req: Request, res: Response) => {
   const { id } = req.params;
   const body: ApplicationInput = req.body;
   const { company, position, status } = body;
 
-  if (!hasRequiredFields(body)) {
+  if (!hasRequiredFields(body) || !status || !isValidStatus(status)) {
     return res.status(400).json({
       message: "company, position, and status are required"
     });
   }
 
-  const applicationIndex = applications.findIndex((application) => application.id === id);
+  try {
+    // Prisma updates the matching database row and returns the saved version.
+    const updatedApplication = await prisma.application.update({
+      where: {
+        id
+      },
+      data: {
+        userId: body.userId || DEFAULT_USER_ID,
+        company: company || "",
+        position: position || "",
+        location: body.location || null,
+        jobUrl: body.jobUrl || null,
+        status,
+        dateApplied: parseDateApplied(body.dateApplied),
+        notes: body.notes || null
+      }
+    });
 
-  if (applicationIndex === -1) {
-    return res.status(404).json({ message: "Application not found" });
+    res.json(toApiApplication(updatedApplication));
+  } catch (error) {
+    logDatabaseError("update an application", error);
+    res.status(404).json({ message: "Application not found" });
   }
-
-  const existingApplication = applications[applicationIndex];
-
-  const updatedApplication: Application = {
-    ...existingApplication,
-    userId: body.userId || existingApplication.userId,
-    company: company || existingApplication.company,
-    position: position || existingApplication.position,
-    location: body.location || existingApplication.location,
-    jobUrl: body.jobUrl || existingApplication.jobUrl,
-    status: status || existingApplication.status,
-    dateApplied: body.dateApplied || existingApplication.dateApplied,
-    notes: body.notes || existingApplication.notes,
-    updatedAt: new Date().toISOString()
-  };
-
-  applications[applicationIndex] = updatedApplication;
-
-  res.json(updatedApplication);
 };
 
-export const deleteApplication = (req: Request, res: Response) => {
+export const deleteApplication = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const applicationExists = applications.some((application) => application.id === id);
 
-  if (!applicationExists) {
-    return res.status(404).json({ message: "Application not found" });
+  try {
+    // Deleting through Prisma removes the row from PostgreSQL permanently.
+    await prisma.application.delete({
+      where: {
+        id
+      }
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    logDatabaseError("delete an application", error);
+    res.status(404).json({ message: "Application not found" });
   }
-
-  applications = applications.filter((application) => application.id !== id);
-
-  res.status(204).send();
 };
