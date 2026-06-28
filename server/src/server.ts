@@ -1,6 +1,7 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import authRoutes from "./routes/authRoutes";
 import applicationRoutes from "./routes/applicationRoutes";
 import healthRoutes from "./routes/healthRoutes";
 
@@ -15,6 +16,7 @@ app.use(express.json());
 
 // API routes are grouped by feature to keep the server entry file small.
 app.use("/api/health", healthRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/applications", applicationRoutes);
 
 app.listen(PORT, () => {

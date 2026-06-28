@@ -5,8 +5,11 @@ import {
   getApplications,
   updateApplication
 } from "../controllers/applicationController";
+import { authMiddleware } from "../middleware/authMiddleware";
 
 const router = Router();
+
+router.use(authMiddleware);
 
 router.get("/", getApplications);
 router.post("/", createApplication);

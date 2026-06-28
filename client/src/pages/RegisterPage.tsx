@@ -8,18 +8,31 @@ export function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await register(name, email, password);
-    navigate("/");
+
+    try {
+      setErrorMessage("");
+      await register(name, email, password);
+      navigate("/");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Could not create account.");
+    }
   }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10">
       <section className="w-full max-w-md rounded-lg bg-white p-8 shadow-sm ring-1 ring-slate-200">
         <h1 className="text-2xl font-bold text-slate-950">Create account</h1>
-        <p className="mt-2 text-sm text-slate-500">Start tracking applications with fake local auth.</p>
+        <p className="mt-2 text-sm text-slate-500">Create an account to track your own applications.</p>
+
+        {errorMessage && (
+          <div className="mt-4 rounded-md bg-rose-50 p-3 text-sm font-medium text-rose-700 ring-1 ring-rose-200">
+            {errorMessage}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <label className="block">

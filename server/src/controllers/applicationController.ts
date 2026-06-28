@@ -1,9 +1,8 @@
 import { Application as PrismaApplication, ApplicationStatus } from "@prisma/client";
-import { Request, Response } from "express";
+import { Response } from "express";
+import { AuthenticatedRequest } from "../middleware/authMiddleware";
 import prisma from "../prisma/client";
 import { Application, ApplicationInput } from "../types/Application";
-
-const DEFAULT_USER_ID = "demo-user";
 
 const hasRequiredFields = (body: ApplicationInput) => {
   return Boolean(body.company && body.position && body.status);
@@ -43,10 +42,17 @@ const logDatabaseError = (action: string, error: unknown) => {
   console.error(`Database error while trying to ${action}:`, error);
 };
 
-export const getApplications = async (_req: Request, res: Response) => {
+export const getApplications = async (req: AuthenticatedRequest, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   try {
-    // This database read goes through Prisma, so applications persist in PostgreSQL after restart.
+    // Prisma reads only rows owned by the logged-in user, so each account sees its own tracker.
     const applications = await prisma.application.findMany({
+      where: {
+        userId: req.user.id
+      },
       orderBy: {
         createdAt: "desc"
       }
@@ -59,7 +65,11 @@ export const getApplications = async (_req: Request, res: Response) => {
   }
 };
 
-export const createApplication = async (req: Request, res: Response) => {
+export const createApplication = async (req: AuthenticatedRequest, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   const body: ApplicationInput = req.body;
   const { company, position, status } = body;
 
@@ -73,7 +83,7 @@ export const createApplication = async (req: Request, res: Response) => {
     // Prisma creates the row in PostgreSQL instead of a temporary in-memory array.
     const newApplication = await prisma.application.create({
       data: {
-        userId: body.userId || DEFAULT_USER_ID,
+        userId: req.user.id,
         company: company || "",
         position: position || "",
         location: body.location || null,
@@ -91,7 +101,11 @@ export const createApplication = async (req: Request, res: Response) => {
   }
 };
 
-export const updateApplication = async (req: Request, res: Response) => {
+export const updateApplication = async (req: AuthenticatedRequest, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   const { id } = req.params;
   const body: ApplicationInput = req.body;
   const { company, position, status } = body;
@@ -103,13 +117,13 @@ export const updateApplication = async (req: Request, res: Response) => {
   }
 
   try {
-    // Prisma updates the matching database row and returns the saved version.
-    const updatedApplication = await prisma.application.update({
+    // updateMany lets us require both the application id and the owner id.
+    const updateResult = await prisma.application.updateMany({
       where: {
-        id
+        id,
+        userId: req.user.id
       },
       data: {
-        userId: body.userId || DEFAULT_USER_ID,
         company: company || "",
         position: position || "",
         location: body.location || null,
@@ -120,6 +134,16 @@ export const updateApplication = async (req: Request, res: Response) => {
       }
     });
 
+    if (updateResult.count === 0) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    const updatedApplication = await prisma.application.findUniqueOrThrow({
+      where: {
+        id
+      }
+    });
+
     res.json(toApiApplication(updatedApplication));
   } catch (error) {
     logDatabaseError("update an application", error);
@@ -127,16 +151,25 @@ export const updateApplication = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteApplication = async (req: Request, res: Response) => {
+export const deleteApplication = async (req: AuthenticatedRequest, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   const { id } = req.params;
 
   try {
-    // Deleting through Prisma removes the row from PostgreSQL permanently.
-    await prisma.application.delete({
+    // The owner check prevents one user from deleting another user's application.
+    const deleteResult = await prisma.application.deleteMany({
       where: {
-        id
+        id,
+        userId: req.user.id
       }
     });
+
+    if (deleteResult.count === 0) {
+      return res.status(404).json({ message: "Application not found" });
+    }
 
     res.status(204).send();
   } catch (error) {

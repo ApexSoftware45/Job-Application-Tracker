@@ -1,5 +1,10 @@
 import { createContext, ReactNode, useContext, useMemo, useState } from "react";
-import { fakeLogin, fakeRegister } from "../api/authApi";
+import {
+  AUTH_TOKEN_STORAGE_KEY,
+  AUTH_USER_STORAGE_KEY,
+  loginUser,
+  registerUser,
+} from "../api/authApi";
 import { User } from "../types/User";
 
 type AuthContextValue = {
@@ -11,10 +16,9 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-const STORAGE_KEY = "job-tracker-user";
 
 function getStoredUser(): User | null {
-  const storedUser = localStorage.getItem(STORAGE_KEY);
+  const storedUser = localStorage.getItem(AUTH_USER_STORAGE_KEY);
 
   if (!storedUser) {
     return null;
@@ -25,33 +29,42 @@ function getStoredUser(): User | null {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(getStoredUser);
+  const [token, setToken] = useState<string | null>(() =>
+    localStorage.getItem(AUTH_TOKEN_STORAGE_KEY),
+  );
 
   async function login(email: string, password: string) {
-    const user = await fakeLogin(email, password);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+    const { user, token } = await loginUser(email, password);
+    localStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(user));
+    localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, token);
     setCurrentUser(user);
+    setToken(token);
   }
 
   async function register(name: string, email: string, password: string) {
-    const user = await fakeRegister(name, email, password);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+    const { user, token } = await registerUser(name, email, password);
+    localStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(user));
+    localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, token);
     setCurrentUser(user);
+    setToken(token);
   }
 
   function logout() {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(AUTH_USER_STORAGE_KEY);
+    localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
     setCurrentUser(null);
+    setToken(null);
   }
 
   const value = useMemo(
     () => ({
       currentUser,
-      isAuthenticated: Boolean(currentUser),
+      isAuthenticated: Boolean(currentUser && token),
       login,
       register,
       logout,
     }),
-    [currentUser],
+    [currentUser, token],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

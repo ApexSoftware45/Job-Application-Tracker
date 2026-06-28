@@ -7,18 +7,31 @@ export function LoginPage() {
   const { login } = useAuth();
   const [email, setEmail] = useState("demo@example.com");
   const [password, setPassword] = useState("password");
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await login(email, password);
-    navigate("/");
+
+    try {
+      setErrorMessage("");
+      await login(email, password);
+      navigate("/");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Could not log in.");
+    }
   }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10">
       <section className="w-full max-w-md rounded-lg bg-white p-8 shadow-sm ring-1 ring-slate-200">
         <h1 className="text-2xl font-bold text-slate-950">Sign in</h1>
-        <p className="mt-2 text-sm text-slate-500">Use any email and password for this demo.</p>
+        <p className="mt-2 text-sm text-slate-500">Sign in with your job tracker account.</p>
+
+        {errorMessage && (
+          <div className="mt-4 rounded-md bg-rose-50 p-3 text-sm font-medium text-rose-700 ring-1 ring-rose-200">
+            {errorMessage}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <label className="block">

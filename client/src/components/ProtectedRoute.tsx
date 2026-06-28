@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-// Keeps dashboard routes private until the fake user is logged in.
+// Keeps dashboard routes private until a user is logged in with a stored JWT.
 export function ProtectedRoute() {
   const { isAuthenticated } = useAuth();
 
