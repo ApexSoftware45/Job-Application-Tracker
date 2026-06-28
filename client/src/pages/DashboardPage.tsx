@@ -1,5 +1,10 @@
-import { useMemo, useState } from "react";
-import { sampleApplications } from "../api/applicationApi";
+import { useEffect, useMemo, useState } from "react";
+import {
+  createApplication,
+  deleteApplication,
+  getApplications,
+  updateApplication,
+} from "../api/applicationApi";
 import { ApplicationCard } from "../components/ApplicationCard";
 import { ApplicationForm } from "../components/ApplicationForm";
 import { DashboardStats } from "../components/DashboardStats";
@@ -12,9 +17,29 @@ type ApplicationFormData = Omit<Application, "id" | "userId" | "createdAt" | "up
 
 export function DashboardPage() {
   const { currentUser } = useAuth();
-  const [applications, setApplications] = useState<Application[]>(sampleApplications);
+  const [applications, setApplications] = useState<Application[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<StatusFilterValue>("ALL");
   const [editingApplication, setEditingApplication] = useState<Application | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    async function loadApplications() {
+      try {
+        setErrorMessage("");
+        const applicationsFromApi = await getApplications();
+        setApplications(applicationsFromApi);
+      } catch (error) {
+        setErrorMessage(
+          error instanceof Error ? error.message : "Could not load applications from the API.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadApplications();
+  }, []);
 
   const filteredApplications = useMemo(() => {
     if (selectedStatus === "ALL") {
@@ -24,39 +49,54 @@ export function DashboardPage() {
     return applications.filter((application) => application.status === selectedStatus);
   }, [applications, selectedStatus]);
 
-  function handleSaveApplication(formData: ApplicationFormData) {
-    const timestamp = new Date().toISOString();
-
-    if (editingApplication) {
-      setApplications((currentApplications) =>
-        currentApplications.map((application) =>
-          application.id === editingApplication.id
-            ? { ...application, ...formData, updatedAt: timestamp }
-            : application,
-        ),
-      );
-      setEditingApplication(null);
-      return;
-    }
-
-    const newApplication: Application = {
+  async function handleSaveApplication(formData: ApplicationFormData) {
+    const applicationData = {
       ...formData,
-      id: crypto.randomUUID(),
       userId: currentUser?.id || "user-1",
-      createdAt: timestamp,
-      updatedAt: timestamp,
     };
 
-    setApplications((currentApplications) => [newApplication, ...currentApplications]);
+    try {
+      setErrorMessage("");
+
+      if (editingApplication) {
+        const updatedApplication = await updateApplication(editingApplication.id, applicationData);
+
+        setApplications((currentApplications) =>
+          currentApplications.map((application) =>
+            application.id === editingApplication.id ? updatedApplication : application,
+          ),
+        );
+        setEditingApplication(null);
+        return;
+      }
+
+      const newApplication = await createApplication(applicationData);
+
+      setApplications((currentApplications) => [newApplication, ...currentApplications]);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Could not save the application to the API.",
+      );
+    }
   }
 
-  function handleDeleteApplication(id: string) {
-    setApplications((currentApplications) =>
-      currentApplications.filter((application) => application.id !== id),
-    );
+  async function handleDeleteApplication(id: string) {
+    try {
+      setErrorMessage("");
 
-    if (editingApplication?.id === id) {
-      setEditingApplication(null);
+      await deleteApplication(id);
+
+      setApplications((currentApplications) =>
+        currentApplications.filter((application) => application.id !== id),
+      );
+
+      if (editingApplication?.id === id) {
+        setEditingApplication(null);
+      }
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Could not delete the application from the API.",
+      );
     }
   }
 
@@ -74,6 +114,12 @@ export function DashboardPage() {
 
         <DashboardStats applications={applications} />
 
+        {errorMessage && (
+          <div className="rounded-lg bg-rose-50 p-4 text-sm font-medium text-rose-700 ring-1 ring-rose-200">
+            {errorMessage}
+          </div>
+        )}
+
         <section className="grid gap-6 lg:grid-cols-[minmax(0,420px)_1fr] lg:items-start">
           <ApplicationForm
             initialData={editingApplication}
@@ -90,7 +136,12 @@ export function DashboardPage() {
               <StatusFilter selectedStatus={selectedStatus} onStatusChange={setSelectedStatus} />
             </div>
 
-            {filteredApplications.length > 0 ? (
+            {isLoading ? (
+              <div className="rounded-lg bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+                <p className="font-semibold text-slate-950">Loading applications...</p>
+                <p className="mt-1 text-sm text-slate-500">Getting your job tracker data.</p>
+              </div>
+            ) : filteredApplications.length > 0 ? (
               <div className="space-y-4">
                 {filteredApplications.map((application) => (
                   <ApplicationCard
