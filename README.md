@@ -40,9 +40,17 @@ API Health: https://job-application-tracker-api-yn0d.onrender.com/api/health
 
 Add screenshots to the paths below after capturing the app locally.
 
-![Dashboard screenshot] (Screenshots/dashboard.png)
-![Application form screenshot](./screenshots/application-form.png)
-![Login screenshot](./screenshots/login.png)
+## Screenshots
+
+### Login Page
+![Login Page](Screenshots/create-account.png)
+
+### Dashboard
+![Dashboard](Screenshots/dashboard.png)
+
+### Add Application
+![Add Application](Screenshots/sign-in.png)
+
 
 ## Local Setup
 
