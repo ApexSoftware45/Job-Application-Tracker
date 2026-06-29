@@ -16,6 +16,8 @@ const emptyForm: ApplicationFormData = {
   jobUrl: "",
   status: "SAVED",
   dateApplied: "",
+  nextActionDate: "",
+  nextActionNote: "",
   notes: "",
 };
 
@@ -28,13 +30,37 @@ const statuses: ApplicationStatus[] = [
   "WITHDRAWN",
 ];
 
+function toDateInputValue(dateValue?: string) {
+  return dateValue ? dateValue.slice(0, 10) : "";
+}
+
 export function ApplicationForm({ initialData, onSubmit, onCancelEdit }: ApplicationFormProps) {
   const [formData, setFormData] = useState<ApplicationFormData>(emptyForm);
 
   useEffect(() => {
     if (initialData) {
-      const { company, position, location, jobUrl, status, dateApplied, notes } = initialData;
-      setFormData({ company, position, location, jobUrl, status, dateApplied, notes });
+      const {
+        company,
+        position,
+        location,
+        jobUrl,
+        status,
+        dateApplied,
+        nextActionDate,
+        nextActionNote,
+        notes,
+      } = initialData;
+      setFormData({
+        company,
+        position,
+        location,
+        jobUrl,
+        status,
+        dateApplied: toDateInputValue(dateApplied),
+        nextActionDate: toDateInputValue(nextActionDate),
+        nextActionNote: nextActionNote || "",
+        notes,
+      });
       return;
     }
 
@@ -129,9 +155,29 @@ export function ApplicationForm({ initialData, onSubmit, onCancelEdit }: Applica
           <span className="text-sm font-medium text-slate-700">Date Applied</span>
           <input
             type="date"
-            value={formData.dateApplied}
+            value={toDateInputValue(formData.dateApplied)}
             onChange={(event) => updateField("dateApplied", event.target.value)}
             className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          />
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-medium text-slate-700">Next Action Date</span>
+          <input
+            type="date"
+            value={toDateInputValue(formData.nextActionDate)}
+            onChange={(event) => updateField("nextActionDate", event.target.value)}
+            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          />
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-medium text-slate-700">Next Action Note</span>
+          <input
+            value={formData.nextActionNote || ""}
+            onChange={(event) => updateField("nextActionNote", event.target.value)}
+            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            placeholder="Follow up with recruiter"
           />
         </label>
       </div>

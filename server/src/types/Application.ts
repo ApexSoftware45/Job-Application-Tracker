@@ -15,6 +15,8 @@ export type Application = {
   jobUrl: string;
   status: ApplicationStatus;
   dateApplied: string;
+  nextActionDate?: string;
+  nextActionNote?: string;
   notes: string;
   createdAt: string;
   updatedAt: string;

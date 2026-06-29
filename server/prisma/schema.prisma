@@ -36,6 +36,8 @@ model Application {
   jobUrl      String?
   status      ApplicationStatus
   dateApplied DateTime?
+  nextActionDate DateTime?
+  nextActionNote String?
   notes       String?
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt

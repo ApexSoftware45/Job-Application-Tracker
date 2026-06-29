@@ -12,12 +12,12 @@ const isValidStatus = (status: string) => {
   return Object.values(ApplicationStatus).includes(status as ApplicationStatus);
 };
 
-const parseDateApplied = (dateApplied?: string) => {
-  if (!dateApplied) {
+const parseOptionalDate = (dateValue?: string) => {
+  if (!dateValue) {
     return null;
   }
 
-  const date = new Date(dateApplied);
+  const date = new Date(dateValue);
 
   return Number.isNaN(date.getTime()) ? null : date;
 };
@@ -32,6 +32,8 @@ const toApiApplication = (application: PrismaApplication): Application => {
     jobUrl: application.jobUrl || "",
     status: application.status,
     dateApplied: application.dateApplied ? application.dateApplied.toISOString() : "",
+    nextActionDate: application.nextActionDate ? application.nextActionDate.toISOString() : "",
+    nextActionNote: application.nextActionNote || "",
     notes: application.notes || "",
     createdAt: application.createdAt.toISOString(),
     updatedAt: application.updatedAt.toISOString()
@@ -89,7 +91,9 @@ export const createApplication = async (req: AuthenticatedRequest, res: Response
         location: body.location || null,
         jobUrl: body.jobUrl || null,
         status,
-        dateApplied: parseDateApplied(body.dateApplied),
+        dateApplied: parseOptionalDate(body.dateApplied),
+        nextActionDate: parseOptionalDate(body.nextActionDate),
+        nextActionNote: body.nextActionNote || null,
         notes: body.notes || null
       }
     });
@@ -129,7 +133,9 @@ export const updateApplication = async (req: AuthenticatedRequest, res: Response
         location: body.location || null,
         jobUrl: body.jobUrl || null,
         status,
-        dateApplied: parseDateApplied(body.dateApplied),
+        dateApplied: parseOptionalDate(body.dateApplied),
+        nextActionDate: parseOptionalDate(body.nextActionDate),
+        nextActionNote: body.nextActionNote || null,
         notes: body.notes || null
       }
     });

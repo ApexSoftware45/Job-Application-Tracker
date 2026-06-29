@@ -17,6 +17,7 @@ type ApplicationFormData = Omit<Application, "id" | "userId" | "createdAt" | "up
 export function DashboardPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<StatusFilterValue>("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
   const [editingApplication, setEditingApplication] = useState<Application | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -40,12 +41,19 @@ export function DashboardPage() {
   }, []);
 
   const filteredApplications = useMemo(() => {
-    if (selectedStatus === "ALL") {
-      return applications;
-    }
+    const normalizedSearchQuery = searchQuery.trim().toLowerCase();
 
-    return applications.filter((application) => application.status === selectedStatus);
-  }, [applications, selectedStatus]);
+    return applications.filter((application) => {
+      const matchesStatus = selectedStatus === "ALL" || application.status === selectedStatus;
+      const matchesSearch =
+        !normalizedSearchQuery ||
+        [application.company, application.position, application.location].some((value) =>
+          value.toLowerCase().includes(normalizedSearchQuery),
+        );
+
+      return matchesStatus && matchesSearch;
+    });
+  }, [applications, selectedStatus, searchQuery]);
 
   async function handleSaveApplication(formData: ApplicationFormData) {
     try {
@@ -124,8 +132,17 @@ export function DashboardPage() {
             <div className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200">
               <div className="mb-3 flex flex-col gap-1">
                 <h3 className="font-bold text-slate-950">Applications</h3>
-                <p className="text-sm text-slate-500">Filter your pipeline by current status.</p>
+                <p className="text-sm text-slate-500">
+                  Filter your pipeline by company, role, location, or status.
+                </p>
               </div>
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                className="mb-3 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                placeholder="Search company, position, or location"
+              />
               <StatusFilter selectedStatus={selectedStatus} onStatusChange={setSelectedStatus} />
             </div>
 

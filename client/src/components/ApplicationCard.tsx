@@ -67,6 +67,14 @@ export function ApplicationCard({ application, onEdit, onDelete }: ApplicationCa
         )}
       </div>
 
+      {(application.nextActionDate || application.nextActionNote) && (
+        <div className="mt-4 rounded-md bg-slate-50 p-3 text-sm text-slate-600 ring-1 ring-slate-200">
+          <p className="font-semibold text-slate-800">Next action</p>
+          {application.nextActionDate && <p className="mt-1">Date: {application.nextActionDate}</p>}
+          {application.nextActionNote && <p className="mt-1">{application.nextActionNote}</p>}
+        </div>
+      )}
+
       {application.notes && <p className="mt-4 text-sm leading-6 text-slate-600">{application.notes}</p>}
     </article>
   );
