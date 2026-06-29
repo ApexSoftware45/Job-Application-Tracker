@@ -84,64 +84,64 @@ export function ApplicationForm({ initialData, onSubmit, onCancelEdit }: Applica
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg bg-white p-5 shadow-sm ring-1 ring-slate-200">
+    <form onSubmit={handleSubmit} className="rounded-lg bg-slate-900 p-5 shadow-lg shadow-slate-950/25 ring-1 ring-slate-800">
       <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-bold text-slate-950">
+        <h2 className="text-lg font-bold text-slate-100">
           {initialData ? "Edit Application" : "Add Application"}
         </h2>
-        <p className="text-sm text-slate-500">Track the role, status, and notes in one place.</p>
+        <p className="text-sm text-slate-400">Track the role, status, and notes in one place.</p>
       </div>
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Company</span>
+          <span className="text-sm font-medium text-slate-300">Company</span>
           <input
             required
             value={formData.company}
             onChange={(event) => updateField("company", event.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
             placeholder="Acme Inc."
           />
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Position</span>
+          <span className="text-sm font-medium text-slate-300">Position</span>
           <input
             required
             value={formData.position}
             onChange={(event) => updateField("position", event.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
             placeholder="Frontend Developer"
           />
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Location</span>
+          <span className="text-sm font-medium text-slate-300">Location</span>
           <input
             value={formData.location}
             onChange={(event) => updateField("location", event.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
             placeholder="Remote"
           />
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Job URL</span>
+          <span className="text-sm font-medium text-slate-300">Job URL</span>
           <input
             type="url"
             value={formData.jobUrl}
             onChange={(event) => updateField("jobUrl", event.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
             placeholder="https://example.com/job"
           />
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Status</span>
+          <span className="text-sm font-medium text-slate-300">Status</span>
           <select
             value={formData.status}
             onChange={(event) => updateField("status", event.target.value as ApplicationStatus)}
-            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
           >
             {statuses.map((status) => (
               <option key={status} value={status}>
@@ -152,43 +152,43 @@ export function ApplicationForm({ initialData, onSubmit, onCancelEdit }: Applica
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Date Applied</span>
+          <span className="text-sm font-medium text-slate-300">Date Applied</span>
           <input
             type="date"
             value={toDateInputValue(formData.dateApplied)}
             onChange={(event) => updateField("dateApplied", event.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
           />
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Next Action Date</span>
+          <span className="text-sm font-medium text-slate-300">Next Action Date</span>
           <input
             type="date"
             value={toDateInputValue(formData.nextActionDate)}
             onChange={(event) => updateField("nextActionDate", event.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
           />
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Next Action Note</span>
+          <span className="text-sm font-medium text-slate-300">Next Action Note</span>
           <input
             value={formData.nextActionNote || ""}
             onChange={(event) => updateField("nextActionNote", event.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
             placeholder="Follow up with recruiter"
           />
         </label>
       </div>
 
       <label className="mt-4 block">
-        <span className="text-sm font-medium text-slate-700">Notes</span>
+        <span className="text-sm font-medium text-slate-300">Notes</span>
         <textarea
           value={formData.notes}
           onChange={(event) => updateField("notes", event.target.value)}
           rows={4}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
           placeholder="Interview details, follow-up reminders, or resume notes..."
         />
       </label>
@@ -196,7 +196,7 @@ export function ApplicationForm({ initialData, onSubmit, onCancelEdit }: Applica
       <div className="mt-5 flex flex-col gap-3 sm:flex-row">
         <button
           type="submit"
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+          className="rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-sm shadow-emerald-950/30 transition hover:bg-emerald-400"
         >
           {initialData ? "Save Changes" : "Add Application"}
         </button>
@@ -205,7 +205,7 @@ export function ApplicationForm({ initialData, onSubmit, onCancelEdit }: Applica
           <button
             type="button"
             onClick={onCancelEdit}
-            className="rounded-md bg-white px-4 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-300 transition hover:bg-slate-50"
+            className="rounded-md bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-100 ring-1 ring-slate-700 transition hover:bg-slate-700"
           >
             Cancel
           </button>

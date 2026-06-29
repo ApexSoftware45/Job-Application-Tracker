@@ -102,13 +102,13 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-slate-950 text-slate-100">
       <Navbar />
 
       <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-2">
-          <h2 className="text-2xl font-bold text-slate-950">Dashboard</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-2xl font-bold text-slate-100">Dashboard</h2>
+          <p className="text-sm text-slate-400">
             Manage saved roles, applications, interview progress, and outcomes.
           </p>
         </div>
@@ -116,7 +116,7 @@ export function DashboardPage() {
         <DashboardStats applications={applications} />
 
         {errorMessage && (
-          <div className="rounded-lg bg-rose-50 p-4 text-sm font-medium text-rose-700 ring-1 ring-rose-200">
+          <div className="rounded-lg bg-rose-500/10 p-4 text-sm font-medium text-rose-200 ring-1 ring-rose-500/40">
             {errorMessage}
           </div>
         )}
@@ -129,10 +129,10 @@ export function DashboardPage() {
           />
 
           <div className="space-y-4">
-            <div className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200">
+            <div className="rounded-lg bg-slate-900 p-4 shadow-lg shadow-slate-950/25 ring-1 ring-slate-800">
               <div className="mb-3 flex flex-col gap-1">
-                <h3 className="font-bold text-slate-950">Applications</h3>
-                <p className="text-sm text-slate-500">
+                <h3 className="font-bold text-slate-100">Applications</h3>
+                <p className="text-sm text-slate-400">
                   Filter your pipeline by company, role, location, or status.
                 </p>
               </div>
@@ -140,16 +140,16 @@ export function DashboardPage() {
                 type="search"
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                className="mb-3 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="mb-3 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
                 placeholder="Search company, position, or location"
               />
               <StatusFilter selectedStatus={selectedStatus} onStatusChange={setSelectedStatus} />
             </div>
 
             {isLoading ? (
-              <div className="rounded-lg bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
-                <p className="font-semibold text-slate-950">Loading applications...</p>
-                <p className="mt-1 text-sm text-slate-500">Getting your job tracker data.</p>
+              <div className="rounded-lg bg-slate-900 p-8 text-center shadow-lg shadow-slate-950/25 ring-1 ring-slate-800">
+                <p className="font-semibold text-slate-100">Loading applications...</p>
+                <p className="mt-1 text-sm text-slate-400">Getting your job tracker data.</p>
               </div>
             ) : filteredApplications.length > 0 ? (
               <div className="space-y-4">
@@ -163,9 +163,9 @@ export function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="rounded-lg bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
-                <p className="font-semibold text-slate-950">No applications found</p>
-                <p className="mt-1 text-sm text-slate-500">Try another filter or add a new role.</p>
+              <div className="rounded-lg bg-slate-900 p-8 text-center shadow-lg shadow-slate-950/25 ring-1 ring-slate-800">
+                <p className="font-semibold text-slate-100">No applications found</p>
+                <p className="mt-1 text-sm text-slate-400">Try another filter or add a new role.</p>
               </div>
             )}
           </div>

@@ -30,8 +30,8 @@ export function StatusFilter({ selectedStatus, onStatusChange }: StatusFilterPro
             onClick={() => onStatusChange(status.value)}
             className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
               isSelected
-                ? "bg-blue-600 text-white shadow-sm"
-                : "bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
+                ? "bg-emerald-500 text-slate-950 shadow-sm shadow-emerald-950/30"
+                : "bg-slate-900 text-slate-300 ring-1 ring-slate-700 hover:bg-slate-800 hover:text-slate-100"
             }`}
           >
             {status.label}
