@@ -3,7 +3,7 @@ import { AUTH_TOKEN_STORAGE_KEY, AUTH_USER_STORAGE_KEY } from "./authApi";
 
 const API_BASE_URL = "http://localhost:5000/api";
 
-export type ApplicationData = Omit<Application, "id" | "createdAt" | "updatedAt">;
+export type ApplicationData = Omit<Application, "id" | "userId" | "createdAt" | "updatedAt">;
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {

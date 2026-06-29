@@ -10,13 +10,11 @@ import { ApplicationForm } from "../components/ApplicationForm";
 import { DashboardStats } from "../components/DashboardStats";
 import { Navbar } from "../components/Navbar";
 import { StatusFilter, StatusFilterValue } from "../components/StatusFilter";
-import { useAuth } from "../context/AuthContext";
 import { Application } from "../types/Application";
 
 type ApplicationFormData = Omit<Application, "id" | "userId" | "createdAt" | "updatedAt">;
 
 export function DashboardPage() {
-  const { currentUser } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<StatusFilterValue>("ALL");
   const [editingApplication, setEditingApplication] = useState<Application | null>(null);
@@ -50,16 +48,11 @@ export function DashboardPage() {
   }, [applications, selectedStatus]);
 
   async function handleSaveApplication(formData: ApplicationFormData) {
-    const applicationData = {
-      ...formData,
-      userId: currentUser?.id || "user-1",
-    };
-
     try {
       setErrorMessage("");
 
       if (editingApplication) {
-        const updatedApplication = await updateApplication(editingApplication.id, applicationData);
+        const updatedApplication = await updateApplication(editingApplication.id, formData);
 
         setApplications((currentApplications) =>
           currentApplications.map((application) =>
@@ -70,7 +63,7 @@ export function DashboardPage() {
         return;
       }
 
-      const newApplication = await createApplication(applicationData);
+      const newApplication = await createApplication(formData);
 
       setApplications((currentApplications) => [newApplication, ...currentApplications]);
     } catch (error) {
