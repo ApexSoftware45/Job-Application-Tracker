@@ -1,7 +1,7 @@
 import { Application } from "../types/Application";
 import { AUTH_TOKEN_STORAGE_KEY, AUTH_USER_STORAGE_KEY } from "./authApi";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 export type ApplicationData = Omit<Application, "id" | "userId" | "createdAt" | "updatedAt">;
 

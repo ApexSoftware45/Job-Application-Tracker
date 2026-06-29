@@ -1,6 +1,6 @@
 import { User } from "../types/User";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 export const AUTH_USER_STORAGE_KEY = "job-tracker-user";
 export const AUTH_TOKEN_STORAGE_KEY = "job-tracker-token";
