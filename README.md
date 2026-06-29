@@ -8,6 +8,11 @@ The app uses protected routes and user-owned records, so authenticated users onl
 
 Job Application Tracker is built as a modern SaaS-style dashboard with a React frontend, an Express API, Prisma ORM, and PostgreSQL persistence hosted on Neon. It is designed to demonstrate full-stack product development, authentication, relational data modeling, and practical dashboard UX.
 
+## Live Demo
+Live App: https://job-application-tracker-eight-xi.vercel.app/
+GitHub: https://github.com/ApexSoftware45/Job-Application-Tracker
+API Health: https://job-application-tracker-api-yn0d.onrender.com/api/health
+
 ## Features
 
 - User registration and login
@@ -35,7 +40,7 @@ Job Application Tracker is built as a modern SaaS-style dashboard with a React f
 
 Add screenshots to the paths below after capturing the app locally.
 
-![Dashboard screenshot](./screenshots/dashboard.png)
+![Dashboard screenshot] 
 ![Application form screenshot](./screenshots/application-form.png)
 ![Login screenshot](./screenshots/login.png)
 
